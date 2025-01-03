@@ -39,10 +39,10 @@ pub fn build(b: *std.Build) void {
         });
 
         if (target.result.os.tag == .windows) {
-            lib.defineCMacro("PAR_SHAPES_API", "__declspec(dllexport)");
-            lib.defineCMacro("CGLTF_API", "__declspec(dllexport)");
-            lib.defineCMacro("MESHOPTIMIZER_API", "__declspec(dllexport)");
-            lib.defineCMacro("ZMESH_API", "__declspec(dllexport)");
+            lib.root_module.addCMacro("PAR_SHAPES_API", "__declspec(dllexport)");
+            lib.root_module.addCMacro("CGLTF_API", "__declspec(dllexport)");
+            lib.root_module.addCMacro("MESHOPTIMIZER_API", "__declspec(dllexport)");
+            lib.root_module.addCMacro("ZMESH_API", "__declspec(dllexport)");
         }
 
         break :blk lib;
