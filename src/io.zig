@@ -63,7 +63,6 @@ pub const zcgltf = struct {
             const buffer_view = accessor.buffer_view.?;
 
             assert(accessor.stride == buffer_view.stride or buffer_view.stride == 0);
-            assert(accessor.stride * accessor.count == buffer_view.size);
             assert(buffer_view.buffer.data != null);
 
             const data_addr = @as([*]const u8, @ptrCast(buffer_view.buffer.data)) +
