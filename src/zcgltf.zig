@@ -28,14 +28,15 @@ pub fn freeData(data: *Data) void {
 }
 
 pub fn appendMeshPrimitive(
+    allocator: std.mem.Allocator,
     data: *Data,
     mesh_index: u32,
     prim_index: u32,
-    indices: *std.ArrayList(u32),
-    positions: *std.ArrayList([3]f32),
-    normals: ?*std.ArrayList([3]f32),
-    texcoords0: ?*std.ArrayList([2]f32),
-    tangents: ?*std.ArrayList([4]f32),
+    indices: *std.ArrayListUnmanaged(u32),
+    positions: *std.ArrayListUnmanaged([3]f32),
+    normals: ?*std.ArrayListUnmanaged([3]f32),
+    texcoords0: ?*std.ArrayListUnmanaged([2]f32),
+    tangents: ?*std.ArrayListUnmanaged([4]f32),
 ) !void {
     assert(mesh_index < data.meshes_count);
     assert(prim_index < data.meshes.?[mesh_index].primitives_count);
@@ -48,7 +49,7 @@ pub fn appendMeshPrimitive(
 
     // Indices.
     {
-        try indices.ensureTotalCapacity(indices.items.len + num_indices);
+        try indices.ensureTotalCapacity(allocator, indices.items.len + num_indices);
 
         const accessor = prim.indices.?;
         const buffer_view = accessor.buffer_view.?;
@@ -110,24 +111,24 @@ pub fn appendMeshPrimitive(
             if (attrib.type == .position) {
                 assert(accessor.type == .vec3);
                 const slice = @as([*]const [3]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
-                try positions.appendSlice(slice);
+                try positions.appendSlice(allocator, slice);
             } else if (attrib.type == .normal) {
                 if (normals) |n| {
                     assert(accessor.type == .vec3);
                     const slice = @as([*]const [3]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
-                    try n.appendSlice(slice);
+                    try n.appendSlice(allocator, slice);
                 }
             } else if (attrib.type == .texcoord) {
                 if (texcoords0) |tc| {
                     assert(accessor.type == .vec2);
                     const slice = @as([*]const [2]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
-                    try tc.appendSlice(slice);
+                    try tc.appendSlice(allocator, slice);
                 }
             } else if (attrib.type == .tangent) {
                 if (tangents) |tan| {
                     assert(accessor.type == .vec4);
                     const slice = @as([*]const [4]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
-                    try tan.appendSlice(slice);
+                    try tan.appendSlice(allocator, slice);
                 }
             }
         }
