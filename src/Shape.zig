@@ -1,6 +1,8 @@
-const builtin = @import("builtin");
 const std = @import("std");
 const assert = std.debug.assert;
+const expect = std.testing.expect;
+const builtin = @import("builtin");
+
 const zmeshMalloc = @import("memory.zig").zmeshMalloc;
 
 pub const IndexType: type = blk: {
@@ -25,10 +27,10 @@ texcoords: ?[][2]f32,
 handle: ShapeHandle,
 
 pub fn init(
-    indices: std.ArrayList(IndexType),
-    positions: std.ArrayList([3]f32),
-    maybe_normals: ?std.ArrayList([3]f32),
-    maybe_texcoords: ?std.ArrayList([2]f32),
+    indices: std.array_list.Managed(IndexType),
+    positions: std.array_list.Managed([3]f32),
+    maybe_normals: ?std.array_list.Managed([3]f32),
+    maybe_texcoords: ?std.array_list.Managed([2]f32),
 ) Shape {
     const handle = par_shapes_create_empty();
     const parmesh = @as(
@@ -248,7 +250,7 @@ pub const UvToPositionFn = *const fn (
     uv: *const [2]f32,
     position: *[3]f32,
     userdata: ?*anyopaque,
-) callconv(.C) void;
+) callconv(.c) void;
 
 pub fn initParametric(
     fun: UvToPositionFn,
@@ -327,8 +329,6 @@ extern fn par_shapes_create_parametric(
 extern fn par_shapes_create_empty() ShapeHandle;
 
 const test_enable_write_to_disk = false;
-const expect = std.testing.expect;
-
 test "zmesh.basic" {
     const zmesh = @import("root.zig");
 
@@ -461,13 +461,13 @@ test "zmesh.custom" {
     zmesh.init(std.testing.allocator);
     defer zmesh.deinit();
 
-    var positions = std.ArrayList([3]f32).init(std.testing.allocator);
+    var positions = std.array_list.Managed([3]f32).init(std.testing.allocator);
     defer positions.deinit();
     try positions.append(.{ 0.0, 0.0, 0.0 });
     try positions.append(.{ 1.0, 0.0, 0.0 });
     try positions.append(.{ 1.0, 0.0, 1.0 });
 
-    var indices = std.ArrayList(IndexType).init(std.testing.allocator);
+    var indices = std.array_list.Managed(IndexType).init(std.testing.allocator);
     defer indices.deinit();
     try indices.append(0);
     try indices.append(1);

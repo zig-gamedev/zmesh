@@ -24,32 +24,34 @@ pub fn build(b: *std.Build) void {
 
     const options_module = options_step.createModule();
 
-    _ = b.addModule("root", .{
+    const mod = b.addModule("zmesh", .{
         .root_source_file = b.path("src/root.zig"),
+        .target = target,
+        .optimize = optimize,
         .imports = &.{
             .{ .name = "zmesh_options", .module = options_module },
         },
     });
 
     const zmesh_lib = if (options.shared) blk: {
-        const lib = b.addSharedLibrary(.{
+        const lib = b.addLibrary(.{
             .name = "zmesh",
-            .target = target,
-            .optimize = optimize,
+            .root_module = mod,
+            .linkage = .dynamic,
         });
 
         if (target.result.os.tag == .windows) {
-            lib.root_module.addCMacro("PAR_SHAPES_API", "__declspec(dllexport)");
-            lib.root_module.addCMacro("CGLTF_API", "__declspec(dllexport)");
-            lib.root_module.addCMacro("MESHOPTIMIZER_API", "__declspec(dllexport)");
-            lib.root_module.addCMacro("ZMESH_API", "__declspec(dllexport)");
+            mod.addCMacro("PAR_SHAPES_API", "__declspec(dllexport)");
+            mod.addCMacro("CGLTF_API", "__declspec(dllexport)");
+            mod.addCMacro("MESHOPTIMIZER_API", "__declspec(dllexport)");
+            mod.addCMacro("ZMESH_API", "__declspec(dllexport)");
         }
 
         break :blk lib;
-    } else b.addStaticLibrary(.{
+    } else b.addLibrary(.{
         .name = "zmesh",
-        .target = target,
-        .optimize = optimize,
+        .root_module = mod,
+        .linkage = .static,
     });
     b.installArtifact(zmesh_lib);
 
@@ -93,13 +95,10 @@ pub fn build(b: *std.Build) void {
 
     const tests = b.addTest(.{
         .name = "zmesh-tests",
-        .root_source_file = b.path("src/root.zig"),
-        .target = target,
-        .optimize = optimize,
+        .root_module = mod,
     });
     b.installArtifact(tests);
 
-    tests.linkLibrary(zmesh_lib);
     tests.addIncludePath(b.path("libs/cgltf"));
 
     test_step.dependOn(&b.addRunArtifact(tests).step);
