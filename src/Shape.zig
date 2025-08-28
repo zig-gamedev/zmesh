@@ -458,20 +458,22 @@ test "zmesh.invert" {
 test "zmesh.custom" {
     const zmesh = @import("root.zig");
 
-    zmesh.init(std.testing.allocator);
+    const allocator = std.testing.allocator;
+
+    zmesh.init(allocator);
     defer zmesh.deinit();
 
-    var positions = std.ArrayList([3]f32).init(std.testing.allocator);
-    defer positions.deinit();
-    try positions.append(.{ 0.0, 0.0, 0.0 });
-    try positions.append(.{ 1.0, 0.0, 0.0 });
-    try positions.append(.{ 1.0, 0.0, 1.0 });
+    var positions: std.ArrayList([3]f32) = .{};
+    defer positions.deinit(allocator);
+    try positions.append(allocator, .{ 0.0, 0.0, 0.0 });
+    try positions.append(allocator, .{ 1.0, 0.0, 0.0 });
+    try positions.append(allocator, .{ 1.0, 0.0, 1.0 });
 
-    var indices = std.ArrayList(IndexType).init(std.testing.allocator);
-    defer indices.deinit();
-    try indices.append(0);
-    try indices.append(1);
-    try indices.append(2);
+    var indices: std.ArrayList(IndexType) = .{};
+    defer indices.deinit(allocator);
+    try indices.append(allocator, 0);
+    try indices.append(allocator, 1);
+    try indices.append(allocator, 2);
 
     var shape = Shape.init(indices, positions, null, null);
     defer shape.deinit();
