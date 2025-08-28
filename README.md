@@ -74,11 +74,12 @@ pub fn main() !void {
     const data = try zmesh.io.zcgltf.parseAndLoadFile(content_dir ++ "cube.gltf");
     defer zmesh.io.zcgltf.freeData(data);
 
-    var mesh_indices = std.ArrayList(u32).init(allocator);
-    var mesh_positions = std.ArrayList([3]f32).init(allocator);
-    var mesh_normals = std.ArrayList([3]f32).init(allocator);
+    var mesh_indices = std.ArrayListUnmanaged(u32){};
+    var mesh_positions = std.ArrayListUnmanaged([3]f32){};
+    var mesh_normals = std.ArrayListUnmanaged([3]f32){};
 
-    zmesh.io.zcgltf.appendMeshPrimitive(
+    try zmesh.io.zcgltf.appendMeshPrimitive(
+        allocator,
         data,
         0, // mesh index
         0, // gltf primitive index (submesh index)
@@ -98,8 +99,8 @@ pub fn main() !void {
         normal: [3]f32,
     };
 
-    var remap = std.ArrayList(u32).init(allocator);
-    remap.resize(src_indices.items.len) catch unreachable;
+    var remap = std.ArrayListUnmanaged(u32){};
+    try remap.resize(allocator, src_indices.items.len);
 
     const num_unique_vertices = zmesh.opt.generateVertexRemap(
         remap.items, // 'vertex remap' (destination)
@@ -108,8 +109,8 @@ pub fn main() !void {
         src_vertices.items, // non-optimized vertices
     );
 
-    var optimized_vertices = std.ArrayList(Vertex).init(allocator);
-    optimized_vertices.resize(num_unique_vertices) catch unreachable;
+    var optimized_vertices = std.ArrayListUnmanaged(Vertex){};
+    try optimized_vertices.resize(allocator, num_unique_vertices);
 
     zmesh.opt.remapVertexBuffer(
         Vertex, // Zig type describing your vertex
