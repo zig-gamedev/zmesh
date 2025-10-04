@@ -108,9 +108,12 @@ fn zmeshFree(maybe_ptr: ?*anyopaque) callconv(.c) void {
         mem_mutex.lock();
         defer mem_mutex.unlock();
 
-        const size = mem_allocations.?.fetchRemove(@intFromPtr(ptr)).?.value;
-        const mem = @as([*]align(mem_alignment.toByteUnits()) u8, @ptrCast(@alignCast(ptr)))[0..size];
-        mem_allocator.?.free(mem);
+        const try_get_allocation = mem_allocations.?.fetchRemove(@intFromPtr(ptr));
+        if (try_get_allocation) |alloc| {
+            const size = alloc.value;
+            const mem = @as([*]align(mem_alignment.toByteUnits()) u8, @ptrCast(@alignCast(ptr)))[0..size];
+            mem_allocator.?.free(mem);
+        }
     }
 }
 
