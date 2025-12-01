@@ -15,6 +15,11 @@ pub fn build(b: *std.Build) void {
             "shared",
             "Build as shared library",
         ) orelse false,
+        .emscripten_include_path = b.option(
+            []const u8,
+            "emscripten_include_path",
+            "Path to emscripten include directory for Emscripten builds",
+        ),
     };
 
     const options_step = b.addOptions();
@@ -53,6 +58,15 @@ pub fn build(b: *std.Build) void {
     zmesh_lib.linkLibC();
     if (target.result.abi != .msvc)
         zmesh_lib.linkLibCpp();
+
+    // Add Emscripten sysroot include paths when building for emscripten target
+    if (target.result.os.tag == .emscripten) {
+        if (options.emscripten_include_path) |emscripten_include_path| {
+            zmesh_lib.addSystemIncludePath(.{ .cwd_relative = emscripten_include_path });
+        } else {
+            std.debug.panic("emscripten_include_path option must be provided when building for emscripten target\n", .{});
+        }
+    }
 
     const par_shapes_t = if (options.shape_use_32bit_indices)
         "-DPAR_SHAPES_T=uint32_t"

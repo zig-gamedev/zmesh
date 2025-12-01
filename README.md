@@ -27,6 +27,39 @@ pub fn build(b: *std.Build) void {
 }
 ```
 
+Zemscripten `build.zig` example:
+```zig
+pub fn build(b: *std.Build) void {
+    const target = b.resolveTargetQuery(.{
+        .cpu_arch = .wasm32,
+        .os_tag = .emscripten,
+    });
+
+    const wasm = b.addLibrary(.{ .name = "zemscripten-build", .linkage = .static, .root_module = b.createModule(.{
+        .root_source_file = b.path("main.zig"),
+        .target = target,
+        .optimize = optimize,
+    }) });
+
+    // Add Emscripten include paths for @cImport
+    const emsdk_path = b.dependency("emsdk", .{}).path("").getPath(b);
+    const emscripten_include_path = b.pathJoin(&.{ emsdk_path, "upstream", "emscripten", "cache", "sysroot", "include" });
+    wasm.root_module.addSystemIncludePath(.{ .cwd_relative = emscripten_include_path });
+
+    const zemscripten = b.dependency("zemscripten", .{});
+    const zmesh = b.dependency("zmesh", .{
+        .target = target,
+        .optimize = optimize,
+        .emscripten_include_path = emscripten_include_path,
+    });
+
+    wasm.root_module.addImport("zmesh", zmesh.module("root"));
+    wasm.linkLibrary(zmesh.artifact("zmesh"));
+
+    ...
+}
+```
+
 Now in your code you may import and use `zmesh`:
 
 ```zig
