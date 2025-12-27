@@ -458,6 +458,8 @@ pub const Texture = extern struct {
     sampler: ?*Sampler,
     has_basisu: Bool32,
     basisu_image: ?*Image,
+    has_webp: Bool32,
+    webp_image: ?*Image,
     extras: Extras,
     extensions_count: usize,
     extensions: ?[*]Extension,
