@@ -138,10 +138,26 @@ pub fn appendMeshPrimitive(
                 },
                 .color => {
                     if (colors) |c| {
-                        assert(accessor.type == .vec4);
-                        const slice = @as([*]const [4]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
-                        try c.appendSlice(allocator, slice);
+                        assert(accessor.type == .vec4 or accessor.type == .vec3);
+                        if (accessor.type == .vec3) {
+                            const slice = @as([*]const [3]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
+                            var padded_slice: [][4]f32 = try allocator.alloc([4]f32, slice.len);
+                            @memset(padded_slice, [_]f32{0} ** 4);
+                            for (slice, 0..) |vertex, i| {
+                                padded_slice[i][0..3].* = vertex;
+                            }
+                            try c.appendSlice(allocator, padded_slice);
+                        } else {
+                            const slice = @as([*]const [4]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
+                            try c.appendSlice(allocator, slice);
+                        }
                     }
+                },
+                .joints => {
+                    return error.NotImplemented;
+                },
+                .weights => {
+                    return error.NotImplemented;
                 },
                 else => {
                     std.log.err(
