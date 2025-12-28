@@ -238,6 +238,7 @@ pub const Type = enum(c_int) {
 };
 
 pub const PrimitiveType = enum(c_int) {
+    invalid,
     points,
     lines,
     line_loop,
@@ -359,15 +360,6 @@ pub const AccessorSparse = extern struct {
     indices_component_type: ComponentType,
     values_buffer_view: *BufferView,
     values_byte_offset: usize,
-    extras: Extras,
-    indices_extras: Extras,
-    values_extras: Extras,
-    extensions_count: usize,
-    extensions: ?[*]Extension,
-    indices_extensions_count: usize,
-    indices_extensions: ?[*]Extension,
-    values_extensions_count: usize,
-    values_extensions: ?[*]Extension,
 };
 
 pub const Accessor = extern struct {
@@ -424,6 +416,22 @@ pub const Accessor = extern struct {
     }
 };
 
+pub const FilterType = enum(c_int) {
+    undefined = 0,
+    nearest = 9728,
+    linear = 9729,
+    nearest_mipmap_nearest = 9984,
+    linear_mipmap_nearest = 9985,
+    nearest_mipmap_linear = 9986,
+    linear_mipmap_linear = 9987,
+};
+
+pub const WrapMode = enum(c_int) {
+    clamp_to_edge = 33071,
+    mirrored_repeat = 33648,
+    repeat = 10497,
+};
+
 pub const Attribute = extern struct {
     name: ?MutCString,
     type: AttributeType,
@@ -443,10 +451,10 @@ pub const Image = extern struct {
 
 pub const Sampler = extern struct {
     uri: ?MutCString,
-    mag_filter: i32,
-    min_filter: i32,
-    wrap_s: i32,
-    wrap_t: i32,
+    mag_filter: FilterType,
+    min_filter: FilterType,
+    wrap_s: WrapMode,
+    wrap_t: WrapMode,
     extras: Extras,
     extensions_count: usize,
     extensions: ?[*]Extension,
@@ -458,6 +466,8 @@ pub const Texture = extern struct {
     sampler: ?*Sampler,
     has_basisu: Bool32,
     basisu_image: ?*Image,
+    has_webp: Bool32,
+    webp_image: ?*Image,
     extras: Extras,
     extensions_count: usize,
     extensions: ?[*]Extension,
@@ -477,9 +487,6 @@ pub const TextureView = extern struct {
     scale: f32,
     has_transform: Bool32,
     transform: TextureTransform,
-    extras: Extras,
-    extensions_count: usize,
-    extensions: ?[*]Extension,
 };
 
 pub const PbrMetallicRoughness = extern struct {
@@ -549,10 +556,21 @@ pub const Iridescence = extern struct {
     iridescence_thickness_texture: TextureView,
 };
 
+pub const DiffuseTransmission = extern struct {
+    diffuse_transmission_texture: TextureView,
+    diffuse_transmission_factor: f32,
+    diffuse_transmission_color_factor: f32,
+    diffuse_transmission_color_texture: TextureView,
+};
+
 pub const Anisotropy = extern struct {
     anisotropy_strength: f32,
     anisotropy_rotation: f32,
     anisotropy_texture: TextureView,
+};
+
+pub const Dispersion = extern struct {
+    dispersion: f32,
 };
 
 pub const Material = extern struct {
@@ -568,6 +586,8 @@ pub const Material = extern struct {
     has_emissive_strength: Bool32,
     has_iridescence: Bool32,
     has_anisotropy: Bool32,
+    has_diffuse_transmission: Bool32,
+    has_dispersion: Bool32,
     pbr_metallic_roughness: PbrMetallicRoughness,
     pbr_specular_glossiness: PbrSpecularGlossiness,
     clearcoat: Clearcoat,
@@ -579,6 +599,8 @@ pub const Material = extern struct {
     emissive_strength: EmissiveStrength,
     iridescence: Iridescence,
     anisotropy: Anisotropy,
+    diffuse_transmission: DiffuseTransmission,
+    dispersion: Dispersion,
     normal_texture: TextureView,
     occlusion_texture: TextureView,
     emissive_texture: TextureView,
@@ -945,6 +967,7 @@ extern fn cgltf_node_transform_local(node: ?*const Node, out_matrix: ?*[16]f32) 
 extern fn cgltf_node_transform_world(node: ?*const Node, out_matrix: ?*[16]f32) void;
 
 extern fn cgltf_buffer_view_data(view: ?*const BufferView) ?[*]u8;
+extern fn cgltf_find_accessor(prim: ?*const Primitive, type: AttributeType, index: i32) ?*const Accessor;
 
 extern fn cgltf_accessor_read_float(
     accessor: ?*const Accessor,
