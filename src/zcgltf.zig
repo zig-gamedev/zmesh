@@ -37,6 +37,7 @@ pub fn appendMeshPrimitive(
     normals: ?*std.ArrayListUnmanaged([3]f32),
     texcoords0: ?*std.ArrayListUnmanaged([2]f32),
     tangents: ?*std.ArrayListUnmanaged([4]f32),
+    colors: ?*std.ArrayListUnmanaged([4]f32),
 ) !void {
     assert(mesh_index < data.meshes_count);
     assert(prim_index < data.meshes.?[mesh_index].primitives_count);
@@ -108,28 +109,46 @@ pub fn appendMeshPrimitive(
             const data_addr = @as([*]const u8, @ptrCast(buffer_view.buffer.data)) +
                 accessor.offset + buffer_view.offset;
 
-            if (attrib.type == .position) {
-                assert(accessor.type == .vec3);
-                const slice = @as([*]const [3]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
-                try positions.appendSlice(allocator, slice);
-            } else if (attrib.type == .normal) {
-                if (normals) |n| {
+            switch (attrib.type) {
+                .position => {
                     assert(accessor.type == .vec3);
                     const slice = @as([*]const [3]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
-                    try n.appendSlice(allocator, slice);
-                }
-            } else if (attrib.type == .texcoord) {
-                if (texcoords0) |tc| {
-                    assert(accessor.type == .vec2);
-                    const slice = @as([*]const [2]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
-                    try tc.appendSlice(allocator, slice);
-                }
-            } else if (attrib.type == .tangent) {
-                if (tangents) |tan| {
-                    assert(accessor.type == .vec4);
-                    const slice = @as([*]const [4]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
-                    try tan.appendSlice(allocator, slice);
-                }
+                    try positions.appendSlice(allocator, slice);
+                },
+                .normal => {
+                    if (normals) |n| {
+                        assert(accessor.type == .vec3);
+                        const slice = @as([*]const [3]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
+                        try n.appendSlice(allocator, slice);
+                    }
+                },
+                .texcoord => {
+                    if (texcoords0) |tc| {
+                        assert(accessor.type == .vec2);
+                        const slice = @as([*]const [2]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
+                        try tc.appendSlice(allocator, slice);
+                    }
+                },
+                .tangent => {
+                    if (tangents) |tan| {
+                        assert(accessor.type == .vec4);
+                        const slice = @as([*]const [4]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
+                        try tan.appendSlice(allocator, slice);
+                    }
+                },
+                .color => {
+                    if (colors) |c| {
+                        assert(accessor.type == .vec4);
+                        const slice = @as([*]const [4]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
+                        try c.appendSlice(allocator, slice);
+                    }
+                },
+                else => {
+                    std.log.err(
+                        "Loading of attribute type {?s} is not implemented",
+                        .{attrib.name},
+                    );
+                },
             }
         }
     }
