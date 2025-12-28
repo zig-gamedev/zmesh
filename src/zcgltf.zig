@@ -27,6 +27,20 @@ pub fn freeData(data: *Data) void {
     free(data);
 }
 
+fn appendAligned(
+    dim: comptime_int,
+    num_vertices: u32,
+    data_addr: [*]const u8,
+    accessor: *Accessor,
+    expected_type: Type,
+    allocator: std.mem.Allocator,
+    list: *std.ArrayListUnmanaged([dim]f32),
+) !void {
+    assert(accessor.type == expected_type);
+    const slice = @as([*]const [dim]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
+    try list.appendSlice(allocator, slice);
+}
+
 pub fn appendMeshPrimitive(
     allocator: std.mem.Allocator,
     data: *Data,
@@ -113,29 +127,53 @@ pub fn appendMeshPrimitive(
 
             switch (attrib.type) {
                 .position => {
-                    assert(accessor.type == .vec3);
-                    const slice = @as([*]const [3]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
-                    try positions.appendSlice(allocator, slice);
+                    try appendAligned(
+                        3,
+                        num_vertices,
+                        data_addr,
+                        accessor,
+                        .vec3,
+                        allocator,
+                        positions,
+                    );
                 },
                 .normal => {
                     if (normals) |n| {
-                        assert(accessor.type == .vec3);
-                        const slice = @as([*]const [3]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
-                        try n.appendSlice(allocator, slice);
+                        try appendAligned(
+                            3,
+                            num_vertices,
+                            data_addr,
+                            accessor,
+                            .vec3,
+                            allocator,
+                            n,
+                        );
                     }
                 },
                 .texcoord => {
                     if (texcoords0) |tc| {
-                        assert(accessor.type == .vec2);
-                        const slice = @as([*]const [2]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
-                        try tc.appendSlice(allocator, slice);
+                        try appendAligned(
+                            2,
+                            num_vertices,
+                            data_addr,
+                            accessor,
+                            .vec2,
+                            allocator,
+                            tc,
+                        );
                     }
                 },
                 .tangent => {
                     if (tangents) |tan| {
-                        assert(accessor.type == .vec4);
-                        const slice = @as([*]const [4]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
-                        try tan.appendSlice(allocator, slice);
+                        try appendAligned(
+                            4,
+                            num_vertices,
+                            data_addr,
+                            accessor,
+                            .vec4,
+                            allocator,
+                            tan,
+                        );
                     }
                 },
                 .color => {
@@ -157,16 +195,28 @@ pub fn appendMeshPrimitive(
                 },
                 .joints => {
                     if (joints) |j| {
-                        assert(accessor.type == .vec4);
-                        const slice = @as([*]const [4]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
-                        try j.appendSlice(allocator, slice);
+                        try appendAligned(
+                            4,
+                            num_vertices,
+                            data_addr,
+                            accessor,
+                            .vec4,
+                            allocator,
+                            j,
+                        );
                     }
                 },
                 .weights => {
                     if (weights) |w| {
-                        assert(accessor.type == .vec4);
-                        const slice = @as([*]const [4]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
-                        try w.appendSlice(allocator, slice);
+                        try appendAligned(
+                            4,
+                            num_vertices,
+                            data_addr,
+                            accessor,
+                            .vec4,
+                            allocator,
+                            w,
+                        );
                     }
                 },
                 else => {
