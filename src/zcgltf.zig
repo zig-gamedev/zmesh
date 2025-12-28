@@ -38,6 +38,8 @@ pub fn appendMeshPrimitive(
     texcoords0: ?*std.ArrayListUnmanaged([2]f32),
     tangents: ?*std.ArrayListUnmanaged([4]f32),
     colors: ?*std.ArrayListUnmanaged([4]f32),
+    joints: ?*std.ArrayListUnmanaged([4]f32),
+    weights: ?*std.ArrayListUnmanaged([4]f32),
 ) !void {
     assert(mesh_index < data.meshes_count);
     assert(prim_index < data.meshes.?[mesh_index].primitives_count);
@@ -154,10 +156,18 @@ pub fn appendMeshPrimitive(
                     }
                 },
                 .joints => {
-                    return error.NotImplemented;
+                    if (joints) |j| {
+                        assert(accessor.type == .vec4);
+                        const slice = @as([*]const [4]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
+                        try j.appendSlice(allocator, slice);
+                    }
                 },
                 .weights => {
-                    return error.NotImplemented;
+                    if (weights) |w| {
+                        assert(accessor.type == .vec4);
+                        const slice = @as([*]const [4]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
+                        try w.appendSlice(allocator, slice);
+                    }
                 },
                 else => {
                     std.log.err(
