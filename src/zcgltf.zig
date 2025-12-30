@@ -187,6 +187,7 @@ pub fn appendMeshPrimitive(
                                 padded_slice[i][0..3].* = vertex;
                             }
                             try c.appendSlice(allocator, padded_slice);
+                            allocator.free(padded_slice);
                         } else {
                             const slice = @as([*]const [4]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
                             try c.appendSlice(allocator, slice);
