@@ -29,7 +29,6 @@ pub fn freeData(data: *Data) void {
 
 fn appendAligned(
     dim: comptime_int,
-    num_vertices: u32,
     data_addr: [*]const u8,
     accessor: *Accessor,
     expected_type: Type,
@@ -37,7 +36,10 @@ fn appendAligned(
     list: *std.ArrayListUnmanaged([dim]f32),
 ) !void {
     assert(accessor.type == expected_type);
-    const slice = @as([*]const [dim]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
+    const slice = @as(
+        [*]const [dim]f32,
+        @ptrCast(@alignCast(data_addr)),
+    )[0..accessor.count];
     try list.appendSlice(allocator, slice);
 }
 
@@ -61,7 +63,6 @@ pub fn appendMeshPrimitive(
     const mesh = &data.meshes.?[mesh_index];
     const prim = &mesh.primitives[prim_index];
 
-    const num_vertices: u32 = @as(u32, @intCast(prim.attributes[0].data.count));
     const num_indices: u32 = @as(u32, @intCast(prim.indices.?.count));
 
     // Indices.
@@ -129,7 +130,6 @@ pub fn appendMeshPrimitive(
                 .position => {
                     try appendAligned(
                         3,
-                        num_vertices,
                         data_addr,
                         accessor,
                         .vec3,
@@ -141,7 +141,6 @@ pub fn appendMeshPrimitive(
                     if (normals) |n| {
                         try appendAligned(
                             3,
-                            num_vertices,
                             data_addr,
                             accessor,
                             .vec3,
@@ -154,7 +153,6 @@ pub fn appendMeshPrimitive(
                     if (texcoords0) |tc| {
                         try appendAligned(
                             2,
-                            num_vertices,
                             data_addr,
                             accessor,
                             .vec2,
@@ -167,7 +165,6 @@ pub fn appendMeshPrimitive(
                     if (tangents) |tan| {
                         try appendAligned(
                             4,
-                            num_vertices,
                             data_addr,
                             accessor,
                             .vec4,
@@ -180,7 +177,10 @@ pub fn appendMeshPrimitive(
                     if (colors) |c| {
                         assert(accessor.type == .vec4 or accessor.type == .vec3);
                         if (accessor.type == .vec3) {
-                            const slice = @as([*]const [3]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
+                            const slice = @as(
+                                [*]const [3]f32,
+                                @ptrCast(@alignCast(data_addr)),
+                            )[0..accessor.count];
                             var padded_slice: [][4]f32 = try allocator.alloc([4]f32, slice.len);
                             @memset(padded_slice, [_]f32{1} ** 4); // Pad alpha to 1.0
                             for (slice, 0..) |vertex, i| {
@@ -189,7 +189,10 @@ pub fn appendMeshPrimitive(
                             try c.appendSlice(allocator, padded_slice);
                             allocator.free(padded_slice);
                         } else {
-                            const slice = @as([*]const [4]f32, @ptrCast(@alignCast(data_addr)))[0..num_vertices];
+                            const slice = @as(
+                                [*]const [4]f32,
+                                @ptrCast(@alignCast(data_addr)),
+                            )[0..accessor.count];
                             try c.appendSlice(allocator, slice);
                         }
                     }
@@ -198,7 +201,6 @@ pub fn appendMeshPrimitive(
                     if (joints) |j| {
                         try appendAligned(
                             4,
-                            num_vertices,
                             data_addr,
                             accessor,
                             .vec4,
@@ -211,7 +213,6 @@ pub fn appendMeshPrimitive(
                     if (weights) |w| {
                         try appendAligned(
                             4,
-                            num_vertices,
                             data_addr,
                             accessor,
                             .vec4,
