@@ -50,7 +50,7 @@ pub fn build(b: *std.Build) void {
 
     b.installArtifact(zmesh_lib);
 
-    zmesh_lib.root_module.link_libcpp = true;
+    zmesh_lib.root_module.link_libc = true;
     if (target.result.abi != .msvc)
         zmesh_lib.root_module.link_libcpp = true;
 
