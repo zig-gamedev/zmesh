@@ -559,7 +559,7 @@ pub const Iridescence = extern struct {
 pub const DiffuseTransmission = extern struct {
     diffuse_transmission_texture: TextureView,
     diffuse_transmission_factor: f32,
-    diffuse_transmission_color_factor: f32,
+    diffuse_transmission_color_factor: [3]f32,
     diffuse_transmission_color_texture: TextureView,
 };
 
@@ -585,8 +585,8 @@ pub const Material = extern struct {
     has_sheen: Bool32,
     has_emissive_strength: Bool32,
     has_iridescence: Bool32,
-    has_anisotropy: Bool32,
     has_diffuse_transmission: Bool32,
+    has_anisotropy: Bool32,
     has_dispersion: Bool32,
     pbr_metallic_roughness: PbrMetallicRoughness,
     pbr_specular_glossiness: PbrSpecularGlossiness,
@@ -598,8 +598,8 @@ pub const Material = extern struct {
     volume: Volume,
     emissive_strength: EmissiveStrength,
     iridescence: Iridescence,
-    anisotropy: Anisotropy,
     diffuse_transmission: DiffuseTransmission,
+    anisotropy: Anisotropy,
     dispersion: Dispersion,
     normal_texture: TextureView,
     occlusion_texture: TextureView,
