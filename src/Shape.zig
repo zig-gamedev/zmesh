@@ -332,7 +332,7 @@ const expect = std.testing.expect;
 test "zmesh.basic" {
     const zmesh = @import("root.zig");
 
-    zmesh.init(std.testing.allocator);
+    zmesh.init(std.testing.allocator, std.testing.io);
     defer zmesh.deinit();
 
     const cylinder = Shape.initCylinder(10, 10);
@@ -406,7 +406,7 @@ test "zmesh.basic" {
 test "zmesh.clone" {
     const zmesh = @import("root.zig");
 
-    zmesh.init(std.testing.allocator);
+    zmesh.init(std.testing.allocator, std.testing.io);
     defer zmesh.deinit();
 
     const cube = Shape.initCube();
@@ -421,7 +421,7 @@ test "zmesh.clone" {
 test "zmesh.merge" {
     const zmesh = @import("root.zig");
 
-    zmesh.init(std.testing.allocator);
+    zmesh.init(std.testing.allocator, std.testing.io);
     defer zmesh.deinit();
 
     var cube = Shape.initCube();
@@ -441,7 +441,7 @@ test "zmesh.merge" {
 test "zmesh.invert" {
     const zmesh = @import("root.zig");
 
-    zmesh.init(std.testing.allocator);
+    zmesh.init(std.testing.allocator, std.testing.io);
     defer zmesh.deinit();
 
     var hemisphere = Shape.initParametricSphere(10, 10);
@@ -460,7 +460,7 @@ test "zmesh.custom" {
 
     const allocator = std.testing.allocator;
 
-    zmesh.init(allocator);
+    zmesh.init(allocator, std.testing.io);
     defer zmesh.deinit();
 
     var positions: std.ArrayList([3]f32) = .empty;

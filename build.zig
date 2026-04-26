@@ -23,12 +23,22 @@ pub fn build(b: *std.Build) void {
     }
 
     const options_module = options_step.createModule();
+
+    const translate_c = b.addTranslateC(.{
+        .root_source_file = b.path("src/c.h"),
+        .target = target,
+        .optimize = optimize,
+    });
+    translate_c.addIncludePath(b.path("libs/cgltf"));
+    const c_module = translate_c.createModule();
+
     const zmesh_module = b.addModule("root", .{
         .root_source_file = b.path("src/root.zig"),
         .target = target,
         .optimize = optimize,
         .imports = &.{
             .{ .name = "zmesh_options", .module = options_module },
+            .{ .name = "c", .module = c_module },
         },
     });
 
@@ -80,7 +90,6 @@ pub fn build(b: *std.Build) void {
         },
         .flags = &.{""},
     });
-    zmesh_lib.root_module.addIncludePath(b.path("libs/cgltf"));
     zmesh_lib.root_module.addCSourceFile(.{
         .file = b.path("libs/cgltf/cgltf.c"),
         .flags = &.{"-std=c99"},
@@ -95,7 +104,6 @@ pub fn build(b: *std.Build) void {
     b.installArtifact(tests);
 
     tests.root_module.linkLibrary(zmesh_lib);
-    tests.root_module.addIncludePath(b.path("libs/cgltf"));
 
     test_step.dependOn(&b.addRunArtifact(tests).step);
 }
