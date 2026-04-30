@@ -1,6 +1,22 @@
 const std = @import("std");
 const options = @import("zmesh_options");
 
+const SpinLock = struct {
+    state: u32 = 0,
+
+    fn lock(s: *SpinLock) void {
+        while (@atomicRmw(u32, &s.state, .Xchg, 1, .seq_cst) != 0) {
+            while (@atomicLoad(u32, &s.state, .acquire) != 0) {
+                std.Thread.yield() catch {};
+            }
+        }
+    }
+
+    fn unlock(s: *SpinLock) void {
+        @atomicStore(u32, &s.state, 0, .release);
+    }
+};
+
 pub fn init(alloc: std.mem.Allocator) void {
     std.debug.assert(mem_allocator == null and mem_allocations == null);
 
@@ -48,7 +64,7 @@ extern fn meshopt_setAllocator(
 
 var mem_allocator: ?std.mem.Allocator = null;
 var mem_allocations: ?std.AutoHashMap(usize, usize) = null;
-var mem_mutex: std.Thread.Mutex = .{};
+var mem_mutex: SpinLock = .{};
 const mem_alignment: std.mem.Alignment = .@"16";
 
 pub fn zmeshMalloc(size: usize) callconv(.c) ?*anyopaque {

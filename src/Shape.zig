@@ -463,13 +463,13 @@ test "zmesh.custom" {
     zmesh.init(allocator);
     defer zmesh.deinit();
 
-    var positions: std.ArrayList([3]f32) = .{};
+    var positions: std.ArrayList([3]f32) = .empty;
     defer positions.deinit(allocator);
     try positions.append(allocator, .{ 0.0, 0.0, 0.0 });
     try positions.append(allocator, .{ 1.0, 0.0, 0.0 });
     try positions.append(allocator, .{ 1.0, 0.0, 1.0 });
 
-    var indices: std.ArrayList(IndexType) = .{};
+    var indices: std.ArrayList(IndexType) = .empty;
     defer indices.deinit(allocator);
     try indices.append(allocator, 0);
     try indices.append(allocator, 1);
