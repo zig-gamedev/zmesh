@@ -16,6 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+        zig-version: ["0.15.2", "0.16.0"]
     runs-on: ${{matrix.os}}
     steps:
       - name: Checkout repository
