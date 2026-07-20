@@ -391,11 +391,11 @@ pub const Accessor = extern struct {
     }
 
     pub fn unpackIndicesCount(accessor: Accessor) usize {
-        return cgltf_accessor_unpack_indices(&accessor, null, 0);
+        return cgltf_accessor_unpack_indices(&accessor, null, 0, 0);
     }
 
     pub fn unpackIndices(accessor: Accessor, out: []u32) []u32 {
-        const count = cgltf_accessor_unpack_indices(&accessor, out.ptr, out.len);
+        const count = cgltf_accessor_unpack_indices(&accessor, out.ptr, @sizeOf(u32), out.len);
         return out[0..count];
     }
 
@@ -997,6 +997,7 @@ extern fn cgltf_accessor_unpack_floats(
 extern fn cgltf_accessor_unpack_indices(
     accessor: ?*const Accessor,
     out: ?[*]u32,
+    out_component_size: usize,
     index_count: usize,
 ) usize;
 
