@@ -15,21 +15,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-14]
         zig-version: ["0.15.2", "0.16.0"]
     runs-on: ${{matrix.os}}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Select Xcode
-        if: runner.os == 'macOS'
-        run: |
-          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
-          sudo xcodebuild -license accept || true
-          xcode-select -p
-          xcodebuild -version
-          xcrun --show-sdk-path
-          echo "SDKROOT=$(xcrun --show-sdk-path)" >> $GITHUB_ENV
       - name: Install Zig
         uses: mlugg/setup-zig@v2
       - name: Check format
