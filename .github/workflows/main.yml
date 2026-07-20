@@ -23,28 +23,12 @@ jobs:
         uses: actions/checkout@v3
       - name: Select Xcode
         if: runner.os == 'macOS'
-        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
-      - name: Verify Xcode
-        if: runner.os == 'macOS'
         run: |
+          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          sudo xcodebuild -license accept || true
           xcode-select -p
           xcodebuild -version
-      - name: Ensure Xcode Command Line Tools are available
-        if: runner.os == 'macOS'
-        run: |
-          xcode-select --install || true
-          sudo xcode-select -switch /Library/Developer/CommandLineTools || true
-          sudo xcodebuild -license accept || true
-
-          # Wait until xcodebuild becomes available after image updates
-          for i in {1..30}; do
-            if xcodebuild -version >/dev/null 2>&1; then
-              xcrun --show-sdk-path
-              break
-            fi
-            echo "Waiting for Xcode CLT to be ready..."
-            sleep 10
-          done
+          xcrun --show-sdk-path
       - name: Install Zig
         uses: mlugg/setup-zig@v2
       - name: Check format
