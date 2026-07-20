@@ -22,8 +22,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Select Xcode
+        if: runner.os == 'macOS'
         run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
       - name: Verify Xcode
+        if: runner.os == 'macOS'
         run: |
           xcode-select -p
           xcodebuild -version
