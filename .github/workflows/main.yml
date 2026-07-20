@@ -29,6 +29,7 @@ jobs:
           xcode-select -p
           xcodebuild -version
           xcrun --show-sdk-path
+          echo "SDKROOT=$(xcrun --show-sdk-path)" >> $GITHUB_ENV
       - name: Install Zig
         uses: mlugg/setup-zig@v2
       - name: Check format
