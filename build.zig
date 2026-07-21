@@ -88,9 +88,16 @@ pub fn build(b: *std.Build) void {
 
     const test_step = b.step("test", "Run zmesh tests");
 
+    const translate_c = b.addTranslateC(.{
+        .root_source_file = b.path("libs/cgltf/cgltf.h"),
+        .target = target,
+        .optimize = optimize,
+    });
+    var test_module = zmesh_module;
+    test_module.addImport("cgltf", translate_c.createModule());
     const tests = b.addTest(.{
         .name = "zmesh-tests",
-        .root_module = zmesh_module,
+        .root_module = test_module,
     });
     b.installArtifact(tests);
 
