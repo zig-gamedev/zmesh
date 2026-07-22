@@ -2,6 +2,7 @@ const builtin = @import("builtin");
 const std = @import("std");
 const assert = std.debug.assert;
 const mem = @import("memory.zig");
+const c = @import("c");
 
 pub const Bool32 = i32;
 pub const CString = [*:0]const u8;
@@ -1044,7 +1045,6 @@ test {
 
 test "extern struct layout" {
     @setEvalBranchQuota(10_000);
-    const c = @cImport(@cInclude("cgltf.h"));
     inline for (comptime std.meta.declarations(@This())) |decl| {
         const ZigType = @field(@This(), decl.name);
         if (@TypeOf(ZigType) != type) {
@@ -1080,7 +1080,6 @@ test "extern struct layout" {
 
 test "enum" {
     @setEvalBranchQuota(10_000);
-    const c = @cImport(@cInclude("cgltf.h"));
     inline for (comptime std.meta.declarations(@This())) |decl| {
         const ZigType = @field(@This(), decl.name);
         if (@TypeOf(ZigType) != type) {
