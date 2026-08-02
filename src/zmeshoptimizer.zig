@@ -48,6 +48,24 @@ pub inline fn remapIndexBuffer(
     );
 }
 
+pub inline fn generateShadowIndexBuffer(
+    destination: []u32,
+    indices: ?[]const u32,
+    comptime T: type,
+    vertices: *const T,
+    vertex_stride: usize,
+) void {
+    meshopt_generateShadowIndexBuffer(
+        destination.ptr,
+        if (indices) |ind| ind.ptr else null,
+        if (indices) |ind| ind.len else 0,
+        vertices.ptr,
+        vertices.len,
+        @sizeOf(T),
+        vertex_stride,
+    );
+}
+
 // Vertex cache optimization
 pub inline fn optimizeVertexCache(
     destination: []u32,
@@ -150,6 +168,76 @@ pub inline fn analyzeVertexFetch(
     vertex_size: usize,
 ) VertexFetchStatistics {
     return meshopt_analyzeVertexFetch(indices.ptr, indices.len, vertex_count, vertex_size);
+}
+
+pub inline fn decodeIndexSequence(
+    destination: *anyopaque,
+    index_count: usize,
+    index_stride: usize,
+    buffer: *const u8,
+    buffer_size: usize,
+) i32 {
+    return @intCast(meshopt_decodeIndexSequence(
+        destination,
+        index_count,
+        index_stride,
+        buffer,
+        buffer_size,
+    ));
+}
+
+pub inline fn decodeIndexBuffer(
+    destination: *anyopaque,
+    index_count: usize,
+    index_stride: usize,
+    buffer: *const u8,
+    buffer_size: usize,
+) i32 {
+    return @intCast(meshopt_decodeIndexBuffer(
+        destination,
+        index_count,
+        index_stride,
+        buffer,
+        buffer_size,
+    ));
+}
+
+pub inline fn decodeIndexVersion(
+    buffer: *const u8,
+    buffer_size: usize,
+) i32 {
+    return @intCast(meshopt_decodeIndexVersion(
+        buffer,
+        buffer_size,
+    ));
+}
+
+pub inline fn decodeVertexBuffer(
+    destination: *anyopaque,
+    vertex_count: usize,
+    vertex_stride: usize,
+    buffer: *const u8,
+    buffer_size: usize,
+) i32 {
+    return @intCast(meshopt_decodeVertexBuffer(
+        destination,
+        vertex_count,
+        vertex_stride,
+        buffer,
+        buffer_size,
+    ));
+}
+
+pub inline fn decodeFilterOct(buffer: *anyopaque, count: usize, stride: usize) void {
+    meshopt_decodeFilterOct(buffer, count, stride);
+}
+
+pub inline fn decodeFilterQuat(buffer: *anyopaque, count: usize, stride: usize) void {
+    meshopt_decodeFilterQuat(buffer, count, stride);
+}
+
+pub inline fn decodeFilterExp(buffer: *anyopaque, count: usize, stride: usize) void {
+    meshopt_decodeFilterExp(buffer, count, stride);
 }
 
 // Simplifier
@@ -262,6 +350,15 @@ extern fn meshopt_remapIndexBuffer(
     index_count: usize,
     remap: [*]const u32,
 ) void;
+extern fn meshopt_generateShadowIndexBuffer(
+    destination: [*]u32,
+    indices: ?[*]const u32,
+    index_count: usize,
+    vertices: *const anyopaque,
+    vertex_count: usize,
+    vertex_size: usize,
+    vertex_stride: usize,
+) void;
 extern fn meshopt_optimizeVertexCache(
     destination: [*]u32,
     indices: [*]const u32,
@@ -306,6 +403,46 @@ extern fn meshopt_analyzeVertexFetch(
     vertex_count: usize,
     vertex_size: usize,
 ) VertexFetchStatistics;
+extern fn meshopt_decodeIndexSequence(
+    destination: *anyopaque,
+    index_count: usize,
+    index_size: usize,
+    buffer: *const u8,
+    buffer_size: usize,
+) c_int;
+extern fn meshopt_decodeIndexBuffer(
+    destination: *anyopaque,
+    index_count: usize,
+    index_size: usize,
+    buffer: *const u8,
+    buffer_size: usize,
+) c_int;
+extern fn meshopt_decodeIndexVersion(
+    buffer: *const u8,
+    buffer_size: usize,
+) c_int;
+extern fn meshopt_decodeVertexBuffer(
+    destination: *anyopaque,
+    vertex_count: usize,
+    vertex_size: usize,
+    buffer: *const u8,
+    buffer_size: usize,
+) c_int;
+extern fn meshopt_decodeFilterOct(
+    buffer: *anyopaque,
+    count: usize,
+    stride: usize,
+) void;
+extern fn meshopt_decodeFilterQuat(
+    buffer: *anyopaque,
+    count: usize,
+    stride: usize,
+) void;
+extern fn meshopt_decodeFilterExp(
+    buffer: *anyopaque,
+    count: usize,
+    stride: usize,
+) void;
 extern fn meshopt_simplify(
     destination: [*]u32,
     indices: [*]const u32,
