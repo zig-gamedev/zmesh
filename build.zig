@@ -18,8 +18,9 @@ pub fn build(b: *std.Build) void {
     };
 
     const options_step = b.addOptions();
-    inline for (std.meta.fields(@TypeOf(options))) |field| {
-        options_step.addOption(field.type, field.name, @field(options, field.name));
+    inline for (comptime std.meta.fieldNames(@TypeOf(options))) |name| {
+        const value = @field(options, name);
+        options_step.addOption(@TypeOf(value), name, value);
     }
 
     const options_module = options_step.createModule();
@@ -88,11 +89,28 @@ pub fn build(b: *std.Build) void {
 
     const test_step = b.step("test", "Run zmesh tests");
 
+    const cgltf_c = b.addTranslateC(.{
+        .root_source_file = b.path("libs/cgltf/cgltf.h"),
+        .target = target,
+        .optimize = optimize,
+    });
+
     const tests = b.addTest(.{
         .name = "zmesh-tests",
-        .root_module = zmesh_module,
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("src/root.zig"),
+            .target = target,
+            .optimize = optimize,
+            .imports = &.{
+                .{ .name = "zmesh_options", .module = options_module },
+                .{ .name = "cgltf_c", .module = cgltf_c.createModule() },
+            },
+        }),
     });
     b.installArtifact(tests);
+
+    zmesh_module.linkLibrary(zmesh_lib);
+    zmesh_module.addIncludePath(b.path("libs/cgltf"));
 
     tests.root_module.linkLibrary(zmesh_lib);
     tests.root_module.addIncludePath(b.path("libs/cgltf"));
