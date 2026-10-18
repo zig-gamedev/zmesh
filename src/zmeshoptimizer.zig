@@ -3,6 +3,22 @@
 const std = @import("std");
 const assert = std.debug.assert;
 
+pub inline fn generateVertexRemapI(
+    destination: []u32,
+    indices: ?[]const u32,
+    vertex_count: usize,
+    vertex_data: []const u8,
+) usize {
+    const vertex_size = @divExact(vertex_data.len, vertex_count);
+    return meshopt_generateVertexRemap(
+        destination.ptr,
+        if (indices) |ind| ind.ptr else null,
+        if (indices) |ind| ind.len else vertex_count,
+        vertex_data.ptr,
+        vertex_count,
+        vertex_size,
+    );
+}
 // Indexing
 pub inline fn generateVertexRemap(
     destination: []u32,
@@ -20,6 +36,21 @@ pub inline fn generateVertexRemap(
     );
 }
 
+pub inline fn remapVertexBufferI(
+    vertex_count: usize,
+    destination: []u8,
+    vertex_data: []const u8,
+    remap: []const u32,
+) void {
+    const vertex_size = @divExact(vertex_data.len, vertex_count);
+    meshopt_remapVertexBuffer(
+        destination.ptr,
+        vertex_data.ptr,
+        vertex_count,
+        vertex_size,
+        remap.ptr,
+    );
+}
 pub inline fn remapVertexBuffer(
     comptime T: type,
     destination: []T,
@@ -88,6 +119,25 @@ pub inline fn analyzeVertexCache(
 }
 
 // Overdraw optimization
+pub inline fn optimizeOverdrawI(
+    destination: []u32,
+    indices: []const u32,
+    vertex_count: usize,
+    vertex_data: []const u8,
+    threshold: f32,
+) void {
+    assert(destination.len >= indices.len);
+    const vertex_size = @divExact(vertex_data.len, vertex_count);
+    meshopt_optimizeOverdraw(
+        destination.ptr,
+        indices.ptr,
+        indices.len,
+        vertex_data.ptr,
+        vertex_count,
+        vertex_size,
+        threshold,
+    );
+}
 pub inline fn optimizeOverdraw(
     destination: []u32,
     indices: []const u32,
@@ -113,6 +163,14 @@ pub const OverdrawStatistics = extern struct {
     overdraw: f32,
 };
 
+pub inline fn analyzeOverdrawI(
+    indices: []const u32,
+    vertex_count: usize,
+    vertex_data: []const u8,
+) OverdrawStatistics {
+    const vertex_size = @divExact(vertex_data.len, vertex_count);
+    return meshopt_analyzeOverdraw(indices.ptr, indices.len, vertex_data.ptr, vertex_count, vertex_size);
+}
 pub inline fn analyzeOverdraw(
     indices: []const u32,
     comptime T: type,
@@ -122,6 +180,23 @@ pub inline fn analyzeOverdraw(
 }
 
 // Vertex fetch optimization
+pub inline fn optimizeVertexFetchI(
+    vertex_count: usize,
+    destination_data: []u8,
+    indices: []u32,
+    vertex_data: []const u8,
+) usize {
+    assert(destination_data.len >= vertex_data.len);
+    const vertex_size = @divExact(vertex_data.len, vertex_count);
+    return meshopt_optimizeVertexFetch(
+        destination_data.ptr,
+        indices.ptr,
+        indices.len,
+        vertex_data.ptr,
+        vertex_count,
+        vertex_size,
+    );
+}
 pub inline fn optimizeVertexFetch(
     comptime T: type,
     destination: []T,
@@ -153,6 +228,31 @@ pub inline fn analyzeVertexFetch(
 }
 
 // Simplifier
+pub inline fn simplifyI(
+    destination: []u32,
+    indices: []const u32,
+    index_count: usize,
+    vertex_data: []const u8,
+    vertex_count: usize,
+    target_index_count: usize,
+    target_error: f32,
+    options: u32,
+    out_result_error: *f32,
+) usize {
+    const vertex_size = @divExact(vertex_data.len, vertex_count);
+    return meshopt_simplify(
+        destination.ptr,
+        indices.ptr,
+        index_count,
+        vertex_data.ptr,
+        vertex_count,
+        vertex_size,
+        target_index_count,
+        target_error,
+        options,
+        out_result_error,
+    );
+}
 pub inline fn simplify(
     comptime T: type,
     destination: []u32,
@@ -179,6 +279,29 @@ pub inline fn simplify(
     );
 }
 
+pub inline fn simplifySloppyI(
+    destination: []u32,
+    indices: []const u32,
+    index_count: usize,
+    vertex_data: []const u8,
+    vertex_count: usize,
+    target_index_count: usize,
+    target_error: f32,
+    out_result_error: *f32,
+) usize {
+    const vertex_size = @divExact(vertex_data.len, vertex_count);
+    return meshopt_simplifySloppy(
+        destination.ptr,
+        indices.ptr,
+        index_count,
+        vertex_data.ptr,
+        vertex_count,
+        vertex_size,
+        target_index_count,
+        target_error,
+        out_result_error,
+    );
+}
 pub inline fn simplifySloppy(
     comptime T: type,
     destination: []u32,
@@ -215,6 +338,32 @@ pub const Meshlet = extern struct {
     triangle_count: u32,
 };
 
+pub inline fn buildMeshletsI(
+    meshlets: []Meshlet,
+    meshlet_vertices: []u32,
+    meshlet_triangles: []u8,
+    indices: []const u32,
+    vertex_data: []const u8,
+    vertex_count: usize,
+    max_vertices: usize,
+    max_triangles: usize,
+    cone_weight: f32,
+) usize {
+    const vertex_size = @divExact(vertex_data.len, vertex_count);
+    return meshopt_buildMeshlets(
+        meshlets.ptr,
+        meshlet_vertices.ptr,
+        meshlet_triangles.ptr,
+        indices.ptr,
+        indices.len,
+        vertex_data.ptr,
+        vertex_count,
+        vertex_size,
+        max_vertices,
+        max_triangles,
+        cone_weight,
+    );
+}
 pub inline fn buildMeshlets(
     meshlets: []Meshlet,
     meshlet_vertices: []u32,
