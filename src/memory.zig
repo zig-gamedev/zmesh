@@ -52,7 +52,7 @@ var mem_mutex: std.Io.Mutex = .init;
 const mem_alignment: std.mem.Alignment = .@"16";
 
 pub fn zmeshMalloc(size: usize) callconv(.c) ?*anyopaque {
-    std.Io.Threaded.mutexLock(&mem_mutex);
+    std.Io.Threaded.mutexLockUncancelable(&mem_mutex);
     defer std.Io.Threaded.mutexUnlock(&mem_mutex);
 
     const mem = mem_allocator.?.alignedAlloc(
@@ -81,7 +81,7 @@ pub fn zmeshAllocUser(user: ?*anyopaque, size: usize) callconv(.c) ?*anyopaque {
 }
 
 fn zmeshRealloc(ptr: ?*anyopaque, size: usize) callconv(.c) ?*anyopaque {
-    std.Io.Threaded.mutexLock(&mem_mutex);
+    std.Io.Threaded.mutexLockUncancelable(&mem_mutex);
     defer std.Io.Threaded.mutexUnlock(&mem_mutex);
 
     const old_size = if (ptr != null) mem_allocations.?.get(@intFromPtr(ptr.?)).? else 0;
@@ -105,7 +105,7 @@ fn zmeshRealloc(ptr: ?*anyopaque, size: usize) callconv(.c) ?*anyopaque {
 
 fn zmeshFree(maybe_ptr: ?*anyopaque) callconv(.c) void {
     if (maybe_ptr) |ptr| {
-        std.Io.Threaded.mutexLock(&mem_mutex);
+        std.Io.Threaded.mutexLockUncancelable(&mem_mutex);
         defer std.Io.Threaded.mutexUnlock(&mem_mutex);
 
         const try_get_allocation = mem_allocations.?.fetchRemove(@intFromPtr(ptr));

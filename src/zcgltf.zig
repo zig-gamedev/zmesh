@@ -1044,7 +1044,7 @@ test {
 
 test "extern struct layout" {
     @setEvalBranchQuota(10_000);
-    const c = @cImport(@cInclude("cgltf.h"));
+    const c = @import("c");
     inline for (comptime std.meta.declarations(@This())) |decl| {
         const ZigType = @field(@This(), decl.name);
         if (@TypeOf(ZigType) != type) {
@@ -1080,7 +1080,7 @@ test "extern struct layout" {
 
 test "enum" {
     @setEvalBranchQuota(10_000);
-    const c = @cImport(@cInclude("cgltf.h"));
+    const c = @import("c");
     inline for (comptime std.meta.declarations(@This())) |decl| {
         const ZigType = @field(@This(), decl.name);
         if (@TypeOf(ZigType) != type) {
@@ -1105,7 +1105,7 @@ test "enum" {
                 };
                 std.testing.expectEqual(
                     @field(c, c_field_name),
-                    @intFromEnum(@field(ZigType, field_name)),
+                    @backingInt(@field(ZigType, field_name)),
                 ) catch |err| {
                     std.log.err(decl.name ++ "." ++ field_name ++ " != " ++ c_field_name, .{});
                     return err;
