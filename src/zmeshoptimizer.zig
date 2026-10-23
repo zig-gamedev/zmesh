@@ -53,7 +53,10 @@ pub inline fn generateVertexRemapCustom(
     callback: *const fn (?*anyopaque, u32, u32) callconv(.c) c_int,
     context: ?*anyopaque,
 ) usize {
-    comptime { assert(@sizeOf(T) >= 12); assert(@sizeOf(T) % 4 == 0); }
+    comptime {
+        assert(@sizeOf(T) >= 12);
+        assert(@sizeOf(T) % 4 == 0);
+    }
     return meshopt_generateVertexRemapCustom(
         destination.ptr,
         if (indices) |ind| ind.ptr else null,
@@ -154,7 +157,10 @@ pub inline fn generatePositionRemap(
     comptime T: type,
     vertices: []const T,
 ) void {
-    comptime { assert(@sizeOf(T) >= 12); assert(@sizeOf(T) % 4 == 0); }
+    comptime {
+        assert(@sizeOf(T) >= 12);
+        assert(@sizeOf(T) % 4 == 0);
+    }
     meshopt_generatePositionRemap(
         destination.ptr,
         @ptrCast(vertices.ptr),
@@ -266,7 +272,10 @@ pub inline fn optimizeOverdraw(
     vertices: []const T,
     threshold: f32,
 ) void {
-    comptime { assert(@sizeOf(T) >= 12); assert(@sizeOf(T) % 4 == 0); }
+    comptime {
+        assert(@sizeOf(T) >= 12);
+        assert(@sizeOf(T) % 4 == 0);
+    }
     assert(destination.len >= indices.len);
     meshopt_optimizeOverdraw(
         destination.ptr,
@@ -347,7 +356,10 @@ pub inline fn simplify(
     options: SimplifyOptions,
     out_result_error: ?*f32,
 ) usize {
-    comptime { assert(@sizeOf(T) >= 12); assert(@sizeOf(T) % 4 == 0); }
+    comptime {
+        assert(@sizeOf(T) >= 12);
+        assert(@sizeOf(T) % 4 == 0);
+    }
     return meshopt_simplify(
         destination.ptr,
         indices.ptr,
@@ -454,7 +466,10 @@ pub inline fn simplifySloppy(
     target_error: f32,
     out_result_error: ?*f32,
 ) usize {
-    comptime { assert(@sizeOf(T) >= 12); assert(@sizeOf(T) % 4 == 0); }
+    comptime {
+        assert(@sizeOf(T) >= 12);
+        assert(@sizeOf(T) % 4 == 0);
+    }
     return meshopt_simplifySloppy(
         destination.ptr,
         indices.ptr,
@@ -478,7 +493,10 @@ pub inline fn simplifyPrune(
     vertices: []const T,
     target_error: f32,
 ) usize {
-    comptime { assert(@sizeOf(T) >= 12); assert(@sizeOf(T) % 4 == 0); }
+    comptime {
+        assert(@sizeOf(T) >= 12);
+        assert(@sizeOf(T) % 4 == 0);
+    }
     return meshopt_simplifyPrune(
         destination.ptr,
         indices.ptr,
@@ -500,7 +518,10 @@ pub inline fn simplifyPoints(
     color_weight: f32,
     target_vertex_count: usize,
 ) usize {
-    comptime { assert(@sizeOf(T) >= 12); assert(@sizeOf(T) % 4 == 0); }
+    comptime {
+        assert(@sizeOf(T) >= 12);
+        assert(@sizeOf(T) % 4 == 0);
+    }
     return meshopt_simplifyPoints(
         destination.ptr,
         @ptrCast(vertex_positions.ptr),
@@ -518,7 +539,10 @@ pub inline fn simplifyScale(
     comptime T: type,
     vertices: []const T,
 ) f32 {
-    comptime { assert(@sizeOf(T) >= 12); assert(@sizeOf(T) % 4 == 0); }
+    comptime {
+        assert(@sizeOf(T) >= 12);
+        assert(@sizeOf(T) % 4 == 0);
+    }
     return meshopt_simplifyScale(
         @ptrCast(vertices.ptr),
         vertices.len,
@@ -618,7 +642,10 @@ pub inline fn analyzeOverdraw(
     comptime T: type,
     vertices: []const T,
 ) OverdrawStatistics {
-    comptime { assert(@sizeOf(T) >= 12); assert(@sizeOf(T) % 4 == 0); }
+    comptime {
+        assert(@sizeOf(T) >= 12);
+        assert(@sizeOf(T) % 4 == 0);
+    }
     return meshopt_analyzeOverdraw(indices.ptr, indices.len, @ptrCast(vertices.ptr), vertices.len, @sizeOf(T));
 }
 
@@ -628,7 +655,10 @@ pub inline fn analyzeCoverage(
     comptime T: type,
     vertices: []const T,
 ) CoverageStatistics {
-    comptime { assert(@sizeOf(T) >= 12); assert(@sizeOf(T) % 4 == 0); }
+    comptime {
+        assert(@sizeOf(T) >= 12);
+        assert(@sizeOf(T) % 4 == 0);
+    }
     return meshopt_analyzeCoverage(indices.ptr, indices.len, @ptrCast(vertices.ptr), vertices.len, @sizeOf(T));
 }
 
@@ -656,7 +686,10 @@ pub inline fn buildMeshlets(
     max_triangles: usize,
     cone_weight: f32,
 ) usize {
-    comptime { assert(@sizeOf(T) >= 12); assert(@sizeOf(T) % 4 == 0); }
+    comptime {
+        assert(@sizeOf(T) >= 12);
+        assert(@sizeOf(T) % 4 == 0);
+    }
     return meshopt_buildMeshlets(
         meshlets.ptr,
         meshlet_vertices.ptr,
@@ -707,7 +740,10 @@ pub inline fn buildMeshletsFlex(
     cone_weight: f32,
     split_factor: f32,
 ) usize {
-    comptime { assert(@sizeOf(T) >= 12); assert(@sizeOf(T) % 4 == 0); }
+    comptime {
+        assert(@sizeOf(T) >= 12);
+        assert(@sizeOf(T) % 4 == 0);
+    }
     return meshopt_buildMeshletsFlex(
         meshlets.ptr,
         meshlet_vertices.ptr,
@@ -738,7 +774,10 @@ pub inline fn buildMeshletsSpatial(
     max_triangles: usize,
     fill_weight: f32,
 ) usize {
-    comptime { assert(@sizeOf(T) >= 12); assert(@sizeOf(T) % 4 == 0); }
+    comptime {
+        assert(@sizeOf(T) >= 12);
+        assert(@sizeOf(T) % 4 == 0);
+    }
     return meshopt_buildMeshletsSpatial(
         meshlets.ptr,
         meshlet_vertices.ptr,
@@ -807,7 +846,10 @@ pub inline fn computeClusterBounds(
     comptime T: type,
     vertices: []const T,
 ) Bounds {
-    comptime { assert(@sizeOf(T) >= 12); assert(@sizeOf(T) % 4 == 0); }
+    comptime {
+        assert(@sizeOf(T) >= 12);
+        assert(@sizeOf(T) % 4 == 0);
+    }
     return meshopt_computeClusterBounds(
         indices.ptr,
         indices.len,
@@ -825,7 +867,10 @@ pub inline fn computeMeshletBounds(
     comptime T: type,
     vertices: []const T,
 ) Bounds {
-    comptime { assert(@sizeOf(T) >= 12); assert(@sizeOf(T) % 4 == 0); }
+    comptime {
+        assert(@sizeOf(T) >= 12);
+        assert(@sizeOf(T) % 4 == 0);
+    }
     return meshopt_computeMeshletBounds(
         meshlet_vertices.ptr,
         meshlet_triangles.ptr,
@@ -843,7 +888,10 @@ pub inline fn computeSphereBounds(
     radii: ?[]const f32,
     radii_stride: usize,
 ) SphereBounds {
-    comptime { assert(@sizeOf(T) >= 12); assert(@sizeOf(T) % 4 == 0); }
+    comptime {
+        assert(@sizeOf(T) >= 12);
+        assert(@sizeOf(T) % 4 == 0);
+    }
     const b = meshopt_computeSphereBounds(
         @ptrCast(positions.ptr),
         positions.len,
@@ -897,7 +945,10 @@ pub inline fn spatialSortRemap(
     comptime T: type,
     vertices: []const T,
 ) void {
-    comptime { assert(@sizeOf(T) >= 12); assert(@sizeOf(T) % 4 == 0); }
+    comptime {
+        assert(@sizeOf(T) >= 12);
+        assert(@sizeOf(T) % 4 == 0);
+    }
     meshopt_spatialSortRemap(
         destination.ptr,
         @ptrCast(vertices.ptr),
@@ -913,7 +964,10 @@ pub inline fn spatialSortTriangles(
     comptime T: type,
     vertices: []const T,
 ) void {
-    comptime { assert(@sizeOf(T) >= 12); assert(@sizeOf(T) % 4 == 0); }
+    comptime {
+        assert(@sizeOf(T) >= 12);
+        assert(@sizeOf(T) % 4 == 0);
+    }
     meshopt_spatialSortTriangles(
         destination.ptr,
         indices.ptr,
@@ -931,7 +985,10 @@ pub inline fn spatialClusterPoints(
     vertices: []const T,
     cluster_size: usize,
 ) void {
-    comptime { assert(@sizeOf(T) >= 12); assert(@sizeOf(T) % 4 == 0); }
+    comptime {
+        assert(@sizeOf(T) >= 12);
+        assert(@sizeOf(T) % 4 == 0);
+    }
     meshopt_spatialClusterPoints(
         destination.ptr,
         @ptrCast(vertices.ptr),

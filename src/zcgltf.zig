@@ -1105,7 +1105,7 @@ test "enum" {
                 };
                 std.testing.expectEqual(
                     @field(c, c_field_name),
-                    @intFromEnum(@field(ZigType, field_name)),
+                    @backingInt(@field(ZigType, field_name)),
                 ) catch |err| {
                     std.log.err(decl.name ++ "." ++ field_name ++ " != " ++ c_field_name, .{});
                     return err;
