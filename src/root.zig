@@ -16,4 +16,7 @@ pub fn deinit() void {
 
 test {
     std.testing.refAllDecls(@This());
+    std.testing.refAllDecls(Shape);
+    std.testing.refAllDecls(opt);
+    std.testing.refAllDecls(mem);
 }

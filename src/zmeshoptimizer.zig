@@ -50,7 +50,7 @@ pub inline fn generateVertexRemapCustom(
     index_count: usize,
     comptime T: type,
     vertices: []const T,
-    callback: *const fn (?*anyopaque, u32, u32) callconv(.C) c_int,
+    callback: *const fn (?*anyopaque, u32, u32) callconv(.c) c_int,
     context: ?*anyopaque,
 ) usize {
     comptime { assert(@sizeOf(T) >= 12); assert(@sizeOf(T) % 4 == 0); }
